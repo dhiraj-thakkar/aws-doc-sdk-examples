@@ -15,9 +15,9 @@
    <DESCRIPTIONS>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_AWS1_DYN_SCENARIO</CLSNAME>
-     <CMPNAME>GETTING_STARTED_MOVIES</CMPNAME>
+     <CMPNAME>GETTING_STARTED_WITH_TABLES</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Amazon Dynamo DB Scenario. Getting started movies.</DESCRIPT>
+     <DESCRIPT>Amazon Dynamo DB Scenario. Getting started with tables</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
