@@ -180,8 +180,7 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
       ( VALUE /aws1/cl_dynattributevalue=>ts_key_maprow(
        key = 'title' value = NEW /aws1/cl_dynattributevalue( iv_s = 'Jaws' ) ) )
       ( VALUE /aws1/cl_dynattributevalue=>ts_key_maprow(
-       key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) )
-       ).
+       key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) ) ).
     DATA(lo_resp) = ao_dyn_actions->update_item(
       iv_table_name        = av_table_name
       it_item_key              = lt_key
@@ -250,7 +249,7 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
 
   METHOD assert_table_notexists.
     TRY.
-      DATA(lv_status) = ao_dyn->describetable( iv_tablename = av_table_name )->get_table( )->get_tablestatus( ).
+        DATA(lv_status) = ao_dyn->describetable( iv_tablename = av_table_name )->get_table( )->get_tablestatus( ).
         /aws1/cl_rt_assert_abap=>assert_missed_exception( iv_exception = |/AWS1/CX_RT_SERVICE_GENERIC| ).
       CATCH /aws1/cx_rt_service_generic.
       "ignore. expected since the table does not exist
@@ -269,7 +268,7 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
 
   METHOD put_item_local.
     ao_dyn_actions->put_item( iv_table_name = av_table_name
-    iv_item = VALUE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap(
+      iv_item = VALUE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap(
        ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
          key = 'title' value = NEW /aws1/cl_dynattributevalue( iv_s = iv_title ) ) )
        ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
@@ -277,5 +276,5 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
        ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
          key = 'rating' value = NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_rating }| ) ) )
        ) ).
-   ENDMETHOD.
+  ENDMETHOD.
 ENDCLASS.

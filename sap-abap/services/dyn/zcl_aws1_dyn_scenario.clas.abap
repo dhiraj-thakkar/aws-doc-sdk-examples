@@ -11,11 +11,11 @@ CLASS zcl_aws1_dyn_scenario DEFINITION
 
   PUBLIC SECTION.
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  methods GETTING_STARTED_WITH_TABLES
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME .
+    METHODS getting_started_with_tables
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename .
 ENDCLASS.
 
 
@@ -188,8 +188,7 @@ CLASS ZCL_AWS1_DYN_SCENARIO IMPLEMENTATION.
           ( VALUE /aws1/cl_dynattributevalue=>ts_key_maprow(
             key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) )
           ( VALUE /aws1/cl_dynattributevalue=>ts_key_maprow(
-            key = 'title' value = NEW /aws1/cl_dynattributevalue( iv_s = '1980' ) ) )
-          ).
+            key = 'title' value = NEW /aws1/cl_dynattributevalue( iv_s = '1980' ) ) ) ).
         DATA(lo_resp) = lo_dyn->updateitem(
           iv_tablename        = iv_table_name
           it_key              = lt_key

@@ -11,56 +11,56 @@ CLASS zcl_aws1_dyn_actions DEFINITION
 
   PUBLIC SECTION.
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  methods CREATE_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNCREATETABLEOUTPUT .
-  methods DESCRIBE_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNDESCRTABLEOUTPUT .
-  methods DELETE_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME .
-  methods LIST_TABLES
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNLISTTABLESOUTPUT .
-  methods PUT_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IV_ITEM) type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_PUTITEMINPUTATTRIBUTEMAP .
-  methods GET_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      !IV_KEY type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_KEY
-    returning
-      value(OO_ITEM) type ref to /AWS1/CL_DYNGETITEMOUTPUT .
-  methods UPDATE_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IT_ITEM_KEY) type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_KEY
-      value(IT_ATTRIBUTE_UPDATES) type /AWS1/CL_DYNATTRVALUEUPDATE=>TT_ATTRIBUTEUPDATES
-    returning
-      value(OO_OUTPUT) type ref to /AWS1/CL_DYNUPDATEITEMOUTPUT .
-  methods DELETE_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IT_KEY_INPUT) type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_KEY .
-  methods QUERY_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IV_KEYCONDITIONS) type /AWS1/CL_DYNCONDITION=>TT_KEYCONDITIONS
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNQUERYOUTPUT .
-  methods SCAN_ITEMS
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-    returning
-      value(OO_SCAN_RESULT) type ref to /AWS1/CL_DYNSCANOUTPUT .
+    METHODS create_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dyncreatetableoutput .
+    METHODS describe_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dyndescrtableoutput .
+    METHODS delete_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename .
+    METHODS list_tables
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dynlisttablesoutput .
+    METHODS put_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(iv_item) TYPE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap .
+    METHODS get_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      !iv_key TYPE /aws1/cl_dynattributevalue=>tt_key
+      RETURNING
+      VALUE(oo_item) TYPE REF TO /aws1/cl_dyngetitemoutput .
+    METHODS update_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(it_item_key) TYPE /aws1/cl_dynattributevalue=>tt_key
+      VALUE(it_attribute_updates) TYPE /aws1/cl_dynattrvalueupdate=>tt_attributeupdates
+      RETURNING
+      VALUE(oo_output) TYPE REF TO /aws1/cl_dynupdateitemoutput .
+    METHODS delete_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(it_key_input) TYPE /aws1/cl_dynattributevalue=>tt_key .
+    METHODS query_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(iv_keyconditions) TYPE /aws1/cl_dyncondition=>tt_keyconditions
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dynqueryoutput .
+    METHODS scan_items
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      RETURNING
+      VALUE(oo_scan_result) TYPE REF TO /aws1/cl_dynscanoutput .
 ENDCLASS.
 
 
@@ -257,7 +257,7 @@ CLASS ZCL_AWS1_DYN_ACTIONS IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD QUERY_TABLE.
+  METHOD query_table.
     CONSTANTS cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
     DATA(lo_session) = /aws1/cl_rt_session_aws=>create( cv_pfl ).

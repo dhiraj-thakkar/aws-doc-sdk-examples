@@ -1786,7 +1786,7 @@ dynamodb_Scenario_GettingStartedMovies:
           excerpts:
             - description:
               snippet_tags:
-                - dyn.abapv1.getting_started_movies
+                - dyn.abapv1.getting_started_with_tables
     C++:
       versions:
         - sdk_version: 1
