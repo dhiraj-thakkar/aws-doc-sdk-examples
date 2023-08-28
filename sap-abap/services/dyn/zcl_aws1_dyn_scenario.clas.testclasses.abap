@@ -23,9 +23,8 @@ CLASS ltc_zcl_aws1_dyn_scenario DEFINITION FOR TESTING
     DATA av_table_name TYPE /aws1/dyntablename.
 
     METHODS setup RAISING /aws1/cx_rt_generic.
-    METHODS teardown RAISING /aws1/cx_rt_generic.
 
-    METHODS delete_table RAISING /aws1/cx_rt_generic.
+    METHODS assert_table_not_exist RAISING /aws1/cx_rt_generic.
 ENDCLASS.
 
 CLASS ltc_zcl_aws1_dyn_scenario IMPLEMENTATION.
@@ -36,32 +35,18 @@ CLASS ltc_zcl_aws1_dyn_scenario IMPLEMENTATION.
     ao_dyn_scenario = NEW zcl_aws1_dyn_scenario( ).
   ENDMETHOD.
 
-  METHOD teardown.
-    delete_table( ).
-  ENDMETHOD.
-
   METHOD test_dyn.
-    DATA(av_table_name) = |example-table|.
+    DATA(av_table_name) = |code-example-getting-startted-with-tables|.
     ao_dyn_scenario->getting_started_with_tables( av_table_name ).
+    assert_table_not_exist( ).
   ENDMETHOD.
 
-  METHOD delete_table.
+  METHOD assert_table_not_exist.
     TRY.
-        DATA(lo_resp) = ao_dyn->deletetable( av_table_name ).
         DATA(lv_status) = ao_dyn->describetable( iv_tablename = av_table_name )->get_table( )->get_tablestatus( ).
-        cl_abap_unit_assert=>assert_equals(
-                      exp = lv_status
-                      act = 'DELETING'
-                      msg = |Expected the table to be in 'DELETING' status but received { lv_status }| ).
-        ao_dyn->get_waiter( )->tablenotexists(
-          iv_max_wait_time = 200
-          iv_tablename     = av_table_name ).
-        lv_status = ao_dyn->describetable( iv_tablename = av_table_name )->get_table( )->get_tablestatus( ).
       " expecting an exception
         /aws1/cl_rt_assert_abap=>assert_missed_exception( iv_exception = |/AWS1/CX_DYNRESOURCENOTFOUNDEX| ).
       CATCH /aws1/cx_dynresourcenotfoundex.
-      " good, it is deleted
-      CATCH /aws1/cx_rt_generic.
       " good, it is deleted
     ENDTRY.
   ENDMETHOD.

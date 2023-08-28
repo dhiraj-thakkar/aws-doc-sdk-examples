@@ -26,7 +26,7 @@ CLASS ZCL_AWS1_DYN_SCENARIO IMPLEMENTATION.
   METHOD getting_started_with_tables.
     CONSTANTS cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
-    " snippet-start:[dyn.abapv1.getting_started_with_dyn]
+    " snippet-start:[dyn.abapv1.getting_started_with_tables]
     " Create an Amazon Dynamo DB table
 
     TRY.
@@ -124,10 +124,10 @@ CLASS ZCL_AWS1_DYN_SCENARIO IMPLEMENTATION.
            ( VALUE /aws1/cl_dynattributevalue=>ts_key_maprow(
              key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) )
           ) ).
-        DATA(lo_attr) = lo_resp_getitem->get_item( ).
-        DATA(lo_title) = lo_attr[ key = 'title' ]-value.
-        DATA(lo_year) = lo_attr[ key = 'year' ]-value.
-        DATA(lo_rating) = lo_attr[ key = 'year' ]-value.
+        DATA(lt_attr) = lo_resp_getitem->get_item( ).
+        DATA(lo_title) = lt_attr[ key = 'title' ]-value.
+        DATA(lo_year) = lt_attr[ key = 'year' ]-value.
+        DATA(lo_rating) = lt_attr[ key = 'year' ]-value.
         MESSAGE 'Movie name is: ' && lo_title->get_s( ) TYPE 'I'.
         MESSAGE 'Movie year is: ' && lo_year->get_n( ) TYPE 'I'.
         MESSAGE 'Movie rating is: ' && lo_rating->get_n( ) TYPE 'I'.
@@ -137,19 +137,19 @@ CLASS ZCL_AWS1_DYN_SCENARIO IMPLEMENTATION.
 
     " Query item from table
     TRY.
-        DATA(lo_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
+        DATA(lt_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
               ( NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) ).
-        DATA(lo_keyconditions) = VALUE /aws1/cl_dyncondition=>tt_keyconditions(
+        DATA(lt_keyconditions) = VALUE /aws1/cl_dyncondition=>tt_keyconditions(
           ( VALUE /aws1/cl_dyncondition=>ts_keyconditions_maprow(
           key = 'year'
           value = NEW /aws1/cl_dyncondition(
-            it_attributevaluelist = lo_attributelist
+            it_attributevaluelist = lt_attributelist
             iv_comparisonoperator = |EQ|
           ) ) ) ).
         DATA(lo_query_result) = lo_dyn->query(
           iv_tablename = iv_table_name
-          it_keyconditions = lo_keyconditions ).
-        DATA(lo_items) = lo_query_result->get_items( ).
+          it_keyconditions = lt_keyconditions ).
+        DATA(lt_items) = lo_query_result->get_items( ).
         READ TABLE lo_query_result->get_items( ) INTO DATA(lt_item) INDEX 1.
         lo_title = lt_item[ key = 'title' ]-value.
         lo_year = lt_item[ key = 'year' ]-value.
@@ -164,7 +164,7 @@ CLASS ZCL_AWS1_DYN_SCENARIO IMPLEMENTATION.
     " Scan items from table
     TRY.
         DATA(lo_scan_result) = lo_dyn->scan( iv_tablename = iv_table_name ).
-        lo_items = lo_scan_result->get_items( ).
+        lt_items = lo_scan_result->get_items( ).
         " Read the first item and display the attributes.
         READ TABLE lo_query_result->get_items( ) INTO lt_item INDEX 1.
         lo_title = lt_item[ key = 'title' ]-value.
@@ -214,6 +214,6 @@ CLASS ZCL_AWS1_DYN_SCENARIO IMPLEMENTATION.
       CATCH /aws1/cx_dynresourceinuseex.
         MESSAGE 'The table cannot be deleted as it is in use' TYPE 'E'.
     ENDTRY.
-  " snippet-end:[dyn.abapv1.getting_started_with_dyn]
+  " snippet-end:[dyn.abapv1.getting_started_with_tables]
   ENDMETHOD.
 ENDCLASS.
