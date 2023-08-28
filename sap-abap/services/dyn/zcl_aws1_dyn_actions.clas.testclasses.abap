@@ -84,28 +84,27 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
   METHOD list_tables.
     create_table_local( ).
     DATA(lo_tables) = ao_dyn_actions->list_tables( ).
-    DATA lv_found TYPE abap_bool VALUE abap_false.
+
     LOOP AT lo_tables->get_tablenames( ) INTO DATA(lo_table_name).
-       IF lo_table_name->get_value( ) = av_table_name.
-         lv_found = abap_true.
-       ENDIF.
+      IF lo_table_name->get_value( ) = av_table_name.
+        DATA(lv_found) = abap_true.
+      ENDIF.
     ENDLOOP.
     cl_abap_unit_assert=>assert_true(
       act = lv_found
-      msg = |List table is successful|
-    ).
+      msg = |List table is successful| ).
     MESSAGE 'list_tables successful' TYPE 'I'.
   ENDMETHOD.
 
   METHOD put_item.
     create_table_local( ).
     DATA(lt_item) = VALUE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap(
-     ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
+      ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
        key = 'title' value = NEW /aws1/cl_dynattributevalue( iv_s = 'Jaws' ) ) )
-     ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
+      ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
        key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) )
-     ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
-       key = 'rating' value = NEW /aws1/cl_dynattributevalue( iv_n = '7.8' ) ) ) ) .
+      ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
+       key = 'rating' value = NEW /aws1/cl_dynattributevalue( iv_n = '7.8' ) ) ) ).
     ao_dyn_actions->put_item( iv_table_name = av_table_name
       it_item = lt_item ).
     DATA(lt_items) = query_table_local( '1975' ).
@@ -214,7 +213,7 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
           it_attributevaluelist = lt_attributelist
           iv_comparisonoperator = |EQ|
         ) ) ) ).
-    DATA(lt_items) = query_table_local( iv_year = 1975 ).
+    DATA(lt_items) = query_table_local( 1975 ).
     READ TABLE lt_items INTO DATA(lt_item) INDEX 1.
     DATA(lo_rating) = lt_item[ key = 'rating' ]-value.
     DATA(lv_rating) = lo_rating->ask_n( ).
@@ -239,7 +238,7 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
             key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = '1975' ) ) ) ).
     ao_dyn_actions->delete_item( iv_table_name = av_table_name
       it_key_input = lt_key ).
-    DATA(lt_items) = query_table_local( iv_year = '1975' ).
+    DATA(lt_items) = query_table_local( '1975' ).
     DATA(lv_count) = lines( lt_items ).
     cl_abap_unit_assert=>assert_equals( exp = |1|
        act = lv_count
@@ -283,13 +282,13 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD put_item_local.
-      DATA(lt_item) = VALUE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap(
-       ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
+    DATA(lt_item) = VALUE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap(
+        ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
          key = 'title' value = NEW /aws1/cl_dynattributevalue( iv_s = iv_title ) ) )
-       ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
+        ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
          key = 'year' value = NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_year }| ) ) )
-       ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
-         key = 'rating' value = NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_rating }| ) ) ) ) .
+        ( VALUE /aws1/cl_dynattributevalue=>ts_putiteminputattrmap_maprow(
+         key = 'rating' value = NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_rating }| ) ) ) ).
     ao_dyn->putitem( iv_tablename = av_table_name
       it_item = lt_item ).
   ENDMETHOD.
@@ -330,12 +329,12 @@ CLASS ltc_zcl_aws1_dyn_actions IMPLEMENTATION.
         DATA(lt_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
             ( NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_year }| ) ) ).
         DATA(lt_key_conditions) = VALUE /aws1/cl_dyncondition=>tt_keyconditions(
-        ( VALUE /aws1/cl_dyncondition=>ts_keyconditions_maprow(
-        key = 'year'
-        value = NEW /aws1/cl_dyncondition(
+          ( VALUE /aws1/cl_dyncondition=>ts_keyconditions_maprow(
+          key = 'year'
+          value = NEW /aws1/cl_dyncondition(
           it_attributevaluelist = lt_attributelist
           iv_comparisonoperator = |EQ|
-        ) ) ) ).
+          ) ) ) ).
         DATA(lo_result) = ao_dyn->query(
           iv_tablename = av_table_name
           it_keyconditions = lt_key_conditions ).

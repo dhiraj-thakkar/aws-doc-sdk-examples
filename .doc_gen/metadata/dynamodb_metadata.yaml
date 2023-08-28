@@ -1219,7 +1219,7 @@ dynamodb_Query:
           excerpts:
             - description:
               snippet_tags:
-                - dyn.abapv1.query_items
+                - dyn.abapv1.query_table
     Swift:
       versions:
         - sdk_version: 1

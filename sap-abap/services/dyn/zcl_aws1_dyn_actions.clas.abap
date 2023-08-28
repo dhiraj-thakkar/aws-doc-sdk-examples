@@ -11,57 +11,57 @@ CLASS zcl_aws1_dyn_actions DEFINITION
 
   PUBLIC SECTION.
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  methods CREATE_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNCREATETABLEOUTPUT .
-  methods DESCRIBE_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNDESCRTABLEOUTPUT .
-  methods DELETE_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME .
-  methods LIST_TABLES
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNLISTTABLESOUTPUT .
-  methods PUT_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IT_ITEM) type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_PUTITEMINPUTATTRIBUTEMAP .
-  methods GET_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      !IT_KEY type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_KEY
-    returning
-      value(OO_ITEM) type ref to /AWS1/CL_DYNGETITEMOUTPUT .
-  methods UPDATE_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IT_ITEM_KEY) type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_KEY
-      value(IT_ATTRIBUTE_UPDATES) type /AWS1/CL_DYNATTRVALUEUPDATE=>TT_ATTRIBUTEUPDATES
-    returning
-      value(OO_OUTPUT) type ref to /AWS1/CL_DYNUPDATEITEMOUTPUT .
-  methods DELETE_ITEM
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IT_KEY_INPUT) type /AWS1/CL_DYNATTRIBUTEVALUE=>TT_KEY .
-  methods QUERY_TABLE
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      value(IV_YEAR) type NUMERIC
-    returning
-      value(OO_RESULT) type ref to /AWS1/CL_DYNQUERYOUTPUT .
-  methods SCAN_ITEMS
-    importing
-      value(IV_TABLE_NAME) type /AWS1/DYNTABLENAME
-      !IV_RATING type NUMERIC
-    returning
-      value(OO_SCAN_RESULT) type ref to /AWS1/CL_DYNSCANOUTPUT .
+    METHODS create_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dyncreatetableoutput .
+    METHODS describe_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dyndescrtableoutput .
+    METHODS delete_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename .
+    METHODS list_tables
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dynlisttablesoutput .
+    METHODS put_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(it_item) TYPE /aws1/cl_dynattributevalue=>tt_putiteminputattributemap .
+    METHODS get_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      !it_key TYPE /aws1/cl_dynattributevalue=>tt_key
+      RETURNING
+      VALUE(oo_item) TYPE REF TO /aws1/cl_dyngetitemoutput .
+    METHODS update_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(it_item_key) TYPE /aws1/cl_dynattributevalue=>tt_key
+      VALUE(it_attribute_updates) TYPE /aws1/cl_dynattrvalueupdate=>tt_attributeupdates
+      RETURNING
+      VALUE(oo_output) TYPE REF TO /aws1/cl_dynupdateitemoutput .
+    METHODS delete_item
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(it_key_input) TYPE /aws1/cl_dynattributevalue=>tt_key .
+    METHODS query_table
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      VALUE(iv_year) TYPE numeric
+      RETURNING
+      VALUE(oo_result) TYPE REF TO /aws1/cl_dynqueryoutput .
+    METHODS scan_items
+      IMPORTING
+      VALUE(iv_table_name) TYPE /aws1/dyntablename
+      !iv_rating TYPE numeric
+      RETURNING
+      VALUE(oo_scan_result) TYPE REF TO /aws1/cl_dynscanoutput .
 ENDCLASS.
 
 
@@ -270,12 +270,12 @@ CLASS ZCL_AWS1_DYN_ACTIONS IMPLEMENTATION.
         DATA(lt_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
             ( NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_year }| ) ) ).
         DATA(lt_key_conditions) = VALUE /aws1/cl_dyncondition=>tt_keyconditions(
-        ( VALUE /aws1/cl_dyncondition=>ts_keyconditions_maprow(
-        key = 'year'
-        value = NEW /aws1/cl_dyncondition(
+          ( VALUE /aws1/cl_dyncondition=>ts_keyconditions_maprow(
+          key = 'year'
+          value = NEW /aws1/cl_dyncondition(
           it_attributevaluelist = lt_attributelist
           iv_comparisonoperator = |EQ|
-        ) ) ) ).
+          ) ) ) ).
         oo_result = lo_dyn->query(
           iv_tablename = iv_table_name
           it_keyconditions = lt_key_conditions ).
@@ -306,12 +306,12 @@ CLASS ZCL_AWS1_DYN_ACTIONS IMPLEMENTATION.
         DATA(lt_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
             ( NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_rating }| ) ) ).
         DATA(lt_filter_conditions) = VALUE /aws1/cl_dyncondition=>tt_filterconditionmap(
-        ( VALUE /aws1/cl_dyncondition=>ts_filterconditionmap_maprow(
-        key = 'rating'
-        value = NEW /aws1/cl_dyncondition(
+          ( VALUE /aws1/cl_dyncondition=>ts_filterconditionmap_maprow(
+          key = 'rating'
+          value = NEW /aws1/cl_dyncondition(
           it_attributevaluelist = lt_attributelist
           iv_comparisonoperator = |GE|
-        ) ) ) ).
+          ) ) ) ).
         oo_scan_result = lo_dyn->scan( iv_tablename = iv_table_name
           it_scanfilter = lt_filter_conditions ).
         DATA(lt_items) = oo_scan_result->get_items( ).
