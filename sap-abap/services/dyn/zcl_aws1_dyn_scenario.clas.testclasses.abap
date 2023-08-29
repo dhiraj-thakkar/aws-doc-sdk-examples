@@ -24,7 +24,10 @@ CLASS ltc_zcl_aws1_dyn_scenario DEFINITION FOR TESTING
 
     METHODS setup RAISING /aws1/cx_rt_generic.
 
-    METHODS assert_table_not_exist RAISING /aws1/cx_rt_generic.
+    METHODS assert_table_not_exist
+       IMPORTING iv_table_name TYPE string
+       RAISING /aws1/cx_rt_generic.
+
 ENDCLASS.
 
 CLASS ltc_zcl_aws1_dyn_scenario IMPLEMENTATION.
@@ -38,12 +41,12 @@ CLASS ltc_zcl_aws1_dyn_scenario IMPLEMENTATION.
   METHOD test_dyn.
     DATA(av_table_name) = |code-example-getting-startted-with-tables|.
     ao_dyn_scenario->getting_started_with_tables( av_table_name ).
-    assert_table_not_exist( ).
+    assert_table_not_exist( iv_table_name = av_table_name ).
   ENDMETHOD.
 
   METHOD assert_table_not_exist.
     TRY.
-        DATA(lv_status) = ao_dyn->describetable( iv_tablename = av_table_name )->get_table( )->get_tablestatus( ).
+        DATA(lv_status) = ao_dyn->describetable( iv_tablename = iv_table_name )->get_table( )->get_tablestatus( ).
       " expecting an exception
         /aws1/cl_rt_assert_abap=>assert_missed_exception( iv_exception = |/AWS1/CX_DYNRESOURCENOTFOUNDEX| ).
       CATCH /aws1/cx_dynresourcenotfoundex.
