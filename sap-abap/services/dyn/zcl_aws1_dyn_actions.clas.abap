@@ -266,7 +266,7 @@ CLASS ZCL_AWS1_DYN_ACTIONS IMPLEMENTATION.
   " snippet-start:[dyn.abapv1.query_table]
 
     TRY.
-        " Query movies .
+        " Query movies for a given year .
         DATA(lt_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
             ( NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_year }| ) ) ).
         DATA(lt_key_conditions) = VALUE /aws1/cl_dyncondition=>tt_keyconditions(
@@ -303,6 +303,7 @@ CLASS ZCL_AWS1_DYN_ACTIONS IMPLEMENTATION.
 
     " snippet-start:[dyn.abapv1.scan_items]
     TRY.
+        " Scan movies for rating greater than or equal to the rating specified
         DATA(lt_attributelist) = VALUE /aws1/cl_dynattributevalue=>tt_attributevaluelist(
             ( NEW /aws1/cl_dynattributevalue( iv_n = |{ iv_rating }| ) ) ).
         DATA(lt_filter_conditions) = VALUE /aws1/cl_dyncondition=>tt_filterconditionmap(
