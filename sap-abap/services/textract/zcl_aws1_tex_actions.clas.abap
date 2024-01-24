@@ -54,47 +54,44 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     CONSTANTS: cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
     DATA(lo_session) = /aws1/cl_rt_session_aws=>create( cv_pfl ).
-    DATA(lo_tex) = /aws1/cl_tex_factory=>create( lo_session ).
-
+    DATA(lo_tex) = /aws1/cl_tex_factory=>create(
+      io_session = lo_session
+      iv_region = 'us-east-1' ).
     "snippet-start:[tex.abapv1.analyze_document]
 
     "Detects text and additional elements, such as forms or tables,"
     "in a local image file or from in-memory byte data."
     "The image must be in PNG or JPG format."
 
-    DATA lo_document TYPE REF TO /aws1/cl_texdocument.
-    DATA lo_s3object TYPE REF TO /aws1/cl_texs3object.
-    DATA lo_featuretypes TYPE REF TO /aws1/cl_texfeaturetypes_w.
-    DATA lt_featuretypes TYPE /aws1/cl_texfeaturetypes_w=>tt_featuretypes.
 
     "Create ABAP objects for feature type."
     "Add TABLES to return information about the tables."
     "Add FORMS to return detected form data."
     "To perform both types of analysis, add TABLES and FORMS to FeatureTypes."
 
-    CREATE OBJECT lo_featuretypes EXPORTING iv_value = 'FORMS'.
-    INSERT lo_featuretypes INTO TABLE lt_featuretypes.
-
-    CREATE OBJECT lo_featuretypes EXPORTING iv_value = 'TABLES'.
-    INSERT lo_featuretypes INTO TABLE lt_featuretypes.
+    DATA(lt_featuretypes) = VALUE /aws1/cl_texfeaturetypes_w=>tt_featuretypes(
+      ( NEW /aws1/cl_texfeaturetypes_w( iv_value = 'FORMS' ) )
+      ( NEW /aws1/cl_texfeaturetypes_w( iv_value = 'TABLES' ) ) ).
 
     "Create an ABAP object for the Amazon Simple Storage Service (Amazon S3) object."
-    CREATE OBJECT lo_s3object
-      EXPORTING
-        iv_bucket = iv_s3bucket
-        iv_name   = iv_s3object.
+    DATA(lo_s3object) = NEW /aws1/cl_texs3object( iv_bucket = iv_s3bucket
+      iv_name   = iv_s3object ).
 
     "Create an ABAP object for the document."
-    CREATE OBJECT lo_document EXPORTING io_s3object = lo_s3object.
+    DATA(lo_document) = NEW /aws1/cl_texdocument( io_s3object = lo_s3object ).
 
     "Analyze document stored in Amazon S3."
     TRY.
-        oo_result = lo_tex->analyzedocument(      "oo_result is returned for testing purposes."
-      EXPORTING
+      oo_result = lo_tex->analyzedocument(      "oo_result is returned for testing purposes."
         io_document        = lo_document
         it_featuretypes    = lt_featuretypes
       ).
-        MESSAGE 'Analyze document completed.' TYPE 'I'.
+      LOOP AT oo_result->get_blocks( ) INTO DATA(lo_block).
+        IF lo_block->get_text( ) = 'INGREDIENTS: POWDERED SUGAR* (CANE SUGAR,'.
+          MESSAGE 'Found text in the doc: ' && lo_block->get_text( ) TYPE 'I'.
+        ENDIF.
+      ENDLOOP.
+      MESSAGE 'Analyze document completed.' TYPE 'I'.
       CATCH /aws1/cx_texaccessdeniedex .
         MESSAGE 'You do not have permission to perform this action.' TYPE 'E'.
       CATCH /aws1/cx_texbaddocumentex .
@@ -107,6 +104,7 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
         MESSAGE 'Internal server error.' TYPE 'E'.
       CATCH /aws1/cx_texinvalidparameterex .
         MESSAGE 'Request has non-valid parameters.' TYPE 'E'.
+      " CATCH /aws1/cx_texinvalids3objectex .
       CATCH /aws1/cx_texinvalids3objectex .
         MESSAGE 'Amazon S3 object is not valid.' TYPE 'E'.
       CATCH /aws1/cx_texprovthruputexcdex .
@@ -125,7 +123,9 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     CONSTANTS: cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
     DATA(lo_session) = /aws1/cl_rt_session_aws=>create( cv_pfl ).
-    DATA(lo_tex) = /aws1/cl_tex_factory=>create( lo_session ).
+    DATA(lo_tex) = /aws1/cl_tex_factory=>create(
+      io_session = lo_session
+      iv_region = 'us-east-1' ).
 
     "snippet-start:[tex.abapv1.detect_document_text]
 
@@ -133,21 +133,22 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     "Amazon Textract can detect lines of text and the words that make up a line of text."
     "The input document must be in one of the following image formats: JPEG, PNG, PDF, or TIFF."
 
-    DATA lo_document TYPE REF TO /aws1/cl_texdocument.
-    DATA lo_s3object TYPE REF TO /aws1/cl_texs3object.
-
     "Create an ABAP object for the Amazon S3 object."
-    CREATE OBJECT lo_s3object
-      EXPORTING
-        iv_bucket = iv_s3bucket
-        iv_name   = iv_s3object.
+    DATA(lo_s3object) = new /aws1/cl_texs3object( iv_bucket = iv_s3bucket
+      iv_name   = iv_s3object ).
 
     "Create an ABAP object for the document."
-    CREATE OBJECT lo_document EXPORTING io_s3object = lo_s3object.
-
+    DATA(lo_document) = new /aws1/cl_texdocument( io_s3object = lo_s3object ).
     "Analyze document stored in Amazon S3."
     TRY.
         oo_result = lo_tex->detectdocumenttext( io_document = lo_document ).         "oo_result is returned for testing purposes."
+        LOOP AT oo_result->get_blocks( ) INTO DATA(lo_block).
+          IF lo_block->get_text( ) = 'INGREDIENTS: POWDERED SUGAR* (CANE SUGAR,'.
+            MESSAGE 'Found text in the doc: ' && lo_block->get_text( ) TYPE 'I'.
+          ENDIF.
+        ENDLOOP.
+        DATA(lo_metadata) = oo_result->get_documentmetadata( ).
+        MESSAGE 'The number of pages in the document is ' && lo_metadata->ask_pages( ) TYPE 'I'.
         MESSAGE 'Detect document text completed.' TYPE 'I'.
       CATCH /aws1/cx_texaccessdeniedex .
         MESSAGE 'You do not have permission to perform this action.' TYPE 'E'.
@@ -177,7 +178,9 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     CONSTANTS: cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
     DATA(lo_session) = /aws1/cl_rt_session_aws=>create( cv_pfl ).
-    DATA(lo_tex) = /aws1/cl_tex_factory=>create( lo_session ).
+    DATA(lo_tex) = /aws1/cl_tex_factory=>create(
+      io_session = lo_session
+      iv_region = 'us-east-1' ).
 
     "snippet-start:[tex.abapv1.get_document_analysis]
 
@@ -185,6 +188,20 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     "asynchronous operation that analyzes text in a document."
     TRY.
         oo_result = lo_tex->getdocumentanalysis( iv_jobid = iv_jobid ).    "oo_result is returned for testing purposes."
+        WHILE oo_result->get_jobstatus( ) <> 'SUCCEEDED'.
+          IF sy-index = 10.
+            EXIT.               "Maximum 300 seconds.
+          ENDIF.
+          WAIT UP TO 30 SECONDS.
+          oo_result = lo_tex->getdocumentanalysis( iv_jobid = iv_jobid ).
+        ENDWHILE.
+
+        DATA(lt_blocks) = oo_result->get_blocks( ).
+        LOOP AT lt_blocks INTO DATA(lo_block).
+          IF lo_block->get_text( ) = 'INGREDIENTS: POWDERED SUGAR* (CANE SUGAR,'.
+            MESSAGE 'Found text in the doc: ' && lo_block->get_text( ) TYPE 'I'.
+          ENDIF.
+        ENDLOOP.
         MESSAGE 'Document analysis retrieved.' TYPE 'I'.
       CATCH /aws1/cx_texaccessdeniedex .
         MESSAGE 'You do not have permission to perform this action.' TYPE 'E'.
@@ -213,46 +230,53 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     CONSTANTS: cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
     DATA(lo_session) = /aws1/cl_rt_session_aws=>create( cv_pfl ).
-    DATA(lo_tex) = /aws1/cl_tex_factory=>create( lo_session ).
+    DATA(lo_tex) = /aws1/cl_tex_factory=>create(
+      io_session = lo_session
+      iv_region = 'us-east-1' ).
 
     "snippet-start:[tex.abapv1.start_document_analysis]
 
     "Starts the asynchronous analysis of an input document for relationships"
     "between detected items such as key-value pairs, tables, and selection elements."
 
-    DATA lo_documentlocation TYPE REF TO /aws1/cl_texdocumentlocation.
-    DATA lo_s3object TYPE REF TO /aws1/cl_texs3object.
-    DATA lo_featuretypes TYPE REF TO /aws1/cl_texfeaturetypes_w.
-    DATA lt_featuretypes TYPE /aws1/cl_texfeaturetypes_w=>tt_featuretypes.
-
     "Create ABAP objects for feature type."
     "Add TABLES to return information about the tables."
     "Add FORMS to return detected form data."
     "To perform both types of analysis, add TABLES and FORMS to FeatureTypes."
 
-    CREATE OBJECT lo_featuretypes EXPORTING iv_value = 'FORMS'.
-    INSERT lo_featuretypes INTO TABLE lt_featuretypes.
-
-    CREATE OBJECT lo_featuretypes EXPORTING iv_value = 'TABLES'.
-    INSERT lo_featuretypes INTO TABLE lt_featuretypes.
-
+    DATA(lt_featuretypes) = VALUE /aws1/cl_texfeaturetypes_w=>tt_featuretypes(
+      ( NEW /aws1/cl_texfeaturetypes_w( iv_value = 'FORMS' ) )
+      ( NEW /aws1/cl_texfeaturetypes_w( iv_value = 'TABLES' ) ) ).
     "Create an ABAP object for the Amazon S3 object."
-    CREATE OBJECT lo_s3object
-      EXPORTING
-        iv_bucket = iv_s3bucket
-        iv_name   = iv_s3object.
-
+    DATA(lo_s3object) = new /aws1/cl_texs3object( iv_bucket = iv_s3bucket
+      iv_name   = iv_s3object ).
     "Create an ABAP object for the document."
-    CREATE OBJECT lo_documentlocation EXPORTING io_s3object = lo_s3object.
+    DATA(lo_documentlocation) = new /aws1/cl_texdocumentlocation( io_s3object = lo_s3object ).
 
     "Start async document analysis."
     TRY.
-        oo_result = lo_tex->startdocumentanalysis(      "oo_result is returned for testing purposes."
-      EXPORTING
+      oo_result = lo_tex->startdocumentanalysis(      "oo_result is returned for testing purposes."
         io_documentlocation     = lo_documentlocation
         it_featuretypes         = lt_featuretypes
       ).
-        MESSAGE 'Document analysis started.' TYPE 'I'.
+      DATA(lv_jobid) = oo_result->get_jobid( ).
+
+      DATA(lo_document_analysis_output) = lo_tex->getdocumentanalysis( iv_jobid = lv_jobid ).
+      WHILE lo_document_analysis_output->get_jobstatus( ) <> 'SUCCEEDED'.
+        IF sy-index = 10.
+          EXIT.               "Maximum 300 seconds.
+        ENDIF.
+      WAIT UP TO 30 SECONDS.
+        lo_document_analysis_output = lo_tex->getdocumentanalysis( iv_jobid = lv_jobid ).
+      ENDWHILE.
+      DATA(lt_blocks) = lo_document_analysis_output->get_blocks( ).
+      LOOP AT lt_blocks INTO DATA(lo_block).
+        IF lo_block->get_text( ) = 'INGREDIENTS: POWDERED SUGAR* (CANE SUGAR,'.
+          MESSAGE 'Found text in the doc: ' && lo_block->get_text( ) TYPE 'I'.
+        ENDIF.
+      ENDLOOP.
+
+      MESSAGE 'Document analysis started.' TYPE 'I'.
       CATCH /aws1/cx_texaccessdeniedex .
         MESSAGE 'You do not have permission to perform this action.' TYPE 'E'.
       CATCH /aws1/cx_texbaddocumentex .
@@ -287,31 +311,39 @@ CLASS ZCL_AWS1_TEX_ACTIONS IMPLEMENTATION.
     CONSTANTS: cv_pfl TYPE /aws1/rt_profile_id VALUE 'ZCODE_DEMO'.
 
     DATA(lo_session) = /aws1/cl_rt_session_aws=>create( cv_pfl ).
-    DATA(lo_tex) = /aws1/cl_tex_factory=>create( lo_session ).
+    DATA(lo_tex) = /aws1/cl_tex_factory=>create(
+      io_session = lo_session
+      iv_region = 'us-east-1' ).
 
     "snippet-start:[tex.abapv1.start_document_text_detection]
 
     "Starts the asynchronous detection of text in a document."
     "Amazon Textract can detect lines of text and the words that make up a line of text."
 
-    DATA lo_documentlocation TYPE REF TO /aws1/cl_texdocumentlocation.
-    DATA lo_s3object TYPE REF TO /aws1/cl_texs3object.
-
     "Create an ABAP object for the Amazon S3 object."
-    CREATE OBJECT lo_s3object
-      EXPORTING
-        iv_bucket = iv_s3bucket
-        iv_name   = iv_s3object.
-
+    DATA(lo_s3object) = new /aws1/cl_texs3object( iv_bucket = iv_s3bucket
+      iv_name   = iv_s3object ).
     "Create an ABAP object for the document."
-    CREATE OBJECT lo_documentlocation
-      EXPORTING
-        io_s3object = lo_s3object.
-
+    DATA(lo_documentlocation) = new /aws1/cl_texdocumentlocation( io_s3object = lo_s3object ).
     "Start document analysis."
     TRY.
-        oo_result = lo_tex->startdocumenttextdetection( io_documentlocation = lo_documentlocation ).                 "oo_result is returned for testing purposes."
-        MESSAGE 'Document analysis started.' TYPE 'I'.
+      oo_result = lo_tex->startdocumenttextdetection( io_documentlocation = lo_documentlocation ).
+      DATA(lv_jobid) = oo_result->get_jobid( ).             "oo_result is returned for testing purposes."
+      DATA(lo_text_detection_output) = lo_tex->getdocumenttextdetection( iv_jobid = lv_jobid ).
+      WHILE lo_text_detection_output->get_jobstatus( ) <> 'SUCCEEDED'.
+        IF sy-index = 10.
+          EXIT.               "Maximum 300 seconds.
+        ENDIF.
+        WAIT UP TO 30 SECONDS.
+        lo_text_detection_output = lo_tex->getdocumenttextdetection( iv_jobid = lv_jobid ).
+      ENDWHILE.
+      DATA(lt_blocks) = lo_text_detection_output->get_blocks( ).
+      LOOP AT lt_blocks INTO DATA(lo_block).
+        IF lo_block->get_text( ) = 'INGREDIENTS: POWDERED SUGAR* (CANE SUGAR,'.
+          MESSAGE 'Found text in the doc: ' && lo_block->get_text( ) TYPE 'I'.
+        ENDIF.
+      ENDLOOP.
+      MESSAGE 'Document analysis started.' TYPE 'I'.
       CATCH /aws1/cx_texaccessdeniedex .
         MESSAGE 'You do not have permission to perform this action.' TYPE 'E'.
       CATCH /aws1/cx_texbaddocumentex .

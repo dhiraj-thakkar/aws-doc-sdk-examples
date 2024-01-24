@@ -29,7 +29,10 @@ CLASS ltc_zcl_aws1_tex_actions IMPLEMENTATION.
 
   METHOD setup.
     ao_session = /aws1/cl_rt_session_aws=>create( iv_profile_id = cv_pfl ).
-    ao_tex = /aws1/cl_tex_factory=>create( ao_session ).
+    " ao_tex = /aws1/cl_tex_factory=>create( ao_session ).
+    ao_tex = /aws1/cl_tex_factory=>create(
+      io_session = ao_session
+      iv_region = 'us-east-1' ).
     ao_s3 = /aws1/cl_s3_factory=>create( ao_session ).
     ao_tex_actions = NEW zcl_aws1_tex_actions( ).
   ENDMETHOD.
